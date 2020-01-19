@@ -8,6 +8,14 @@ echo "##########################################################################
 gcloud config set compute/region australia-southeast1
 gcloud config set compute/zone australia-southeast1-a
 
+gcloud compute firewall-rules create default-allow-6443 \
+   --allow tcp:6443 \
+   --network default
+
+gcloud compute firewall-rules create default-allow-http \
+   --allow tcp:15000-15100 \
+   --network default
+
 echo "## Create Controllers VM"
 gcloud compute instances create istio-demo \
   --async \
@@ -20,7 +28,7 @@ gcloud compute instances create istio-demo \
   --tags kubernetes-the-hard-way,controller \
   --zone=australia-southeast1-a \
   --preemptible \
-  --metadata-from-file user-data=/vagrant/bootstrap.sh
+  --metadata-from-file startup-script=./bootstrap.sh
 
 #  --image-family ubuntu-1804-lts \
 #  --image-project ubuntu-os-cloud \
@@ -29,6 +37,33 @@ gcloud compute instances add-metadata istio-demo \
   --zone australia-southeast1-a \
   --metadata block-project-ssh-keys=FALSE
 
+sleep 10
+
+_ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
+
+scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r \
+  ./manifests akihiko@${_ip}:/tmp/
+
+sleep 60
+
+rm -f ./kubeconfig
+while true
+do
+  scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' \
+    akihiko@${_ip}:/tmp/kubeconfig ./kubeconfig
+
+	if [ ! -e "kubeconfig" ]; then
+    echo current num of running :
+    sleep 10
+  else
+    echo current num of running :
+    break
+  fi
+done
+
+sed -i s/0.0.0.0/${_ip}/g kubeconfig
+
+echo "ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' akihiko@${_ip}"
 exit 0 
 
 echo "## Create Workers VM"
@@ -60,5 +95,4 @@ for i in 1 2 3; do
     --metadata block-project-ssh-keys=FALSE
 done
 
-echo "ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' akihiko@[IP]"
 

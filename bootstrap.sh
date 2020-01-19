@@ -1,6 +1,25 @@
 # SELinux
 
 echo "#################################################################################"
+echo "# Environment Values "
+echo "#################################################################################"
+if [ -e "/vagrant" ]; then
+  MANIFESTS_DIR=/vagrant/manifests
+else
+  MANIFESTS_DIR=/tmp/manifests
+fi
+
+while true
+do
+	if [ ! -e "$MANIFESTS_DIR" ]; then
+    echo waiting for manifests directory ...
+    sleep 10
+  else
+    break
+  fi
+done
+
+echo "#################################################################################"
 echo "# k3s"
 echo "#################################################################################"
 sudo yum -d 1 -y install policycoreutils-python
@@ -16,6 +35,8 @@ sudo yum -d 1 -y install policycoreutils-python
 
 #curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v0.9.1 sh - 
 sudo mkdir /var/log/kubernetes
+
+#_ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
 
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v0.9.1 sh -s - \
 --no-deploy traefik \
@@ -71,6 +92,8 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v0.9.1 sh -s - \
 
 mkdir ~/.kube
 sudo cp -p /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig
+sudo cp -p /etc/rancher/k3s/k3s.yaml /tmp/kubeconfig
+sudo chmod 766 /tmp/kubeconfig
 sudo chown vagrant:vagrant ~/.kube/kubeconfig
 
 export KUBECONFIG=~/.kube/kubeconfig
@@ -82,8 +105,6 @@ sudo cp -p istio-*/bin/istioctl /usr/local/bin/
 
 kubectl get pod 
 kubectl get node
-
-exit 0
 
 echo "#################################################################################"
 echo "# Deploy Istio"
@@ -114,14 +135,13 @@ echo $INGRESS_HOST
 echo $INGRESS_PORT
 echo $SECURE_INGRESS_PORT
 
-kubectl apply -f /vagrant/manifests/istio-gateway-sample.yaml
-kubectl apply -f /vagrant/manifests/istio-vs-sample.yaml
+kubectl apply -f $MANIFESTS_DIR/istio-gateway-sample.yaml
+kubectl apply -f $MANIFESTS_DIR/istio-vs-sample.yaml
 
 curl -I -HHost:httpbin.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/status/200
 
 echo "# whoami"
-kubectl apply -f /vagrant/manifests/istio-whoami.yaml
-
+kubectl apply -f $MANIFESTS_DIR/istio-whoami.yaml
 curl -HHost:whoami.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
 
 #curl -I -HHost:prometheus.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
@@ -131,17 +151,17 @@ curl -HHost:whoami.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
 #  -p='[{"op": "replace", "path": "/spec/ports/1/port", "value":8022}]'
 
 echo "# prometheus"
-kubectl apply -f /vagrant/manifests/istio-gateway-prometheus.yaml
-kubectl apply -f /vagrant/manifests/istio-vs-prometheus.yaml
+kubectl apply -f $MANIFESTS_DIR/istio-gateway-prometheus.yaml
+kubectl apply -f $MANIFESTS_DIR/istio-vs-prometheus.yaml
 
 echo "# kiali"
-kubectl apply -f /vagrant/manifests/istio-kiali.yaml
+kubectl apply -f $MANIFESTS_DIR/istio-kiali.yaml
 
 echo "# tracing"
-kubectl apply -f /vagrant/manifests/istio-tracing.yaml
+kubectl apply -f $MANIFESTS_DIR/istio-tracing.yaml
 
 echo "# grafana"
-kubectl apply -f /vagrant/manifests/istio-grafana.yaml
+kubectl apply -f $MANIFESTS_DIR/istio-grafana.yaml
 
 echo "#################################################################################"
 echo "# Deploy Bookinfo"
@@ -149,18 +169,18 @@ echo "##########################################################################
 kubectl label namespace default istio-injection=enabled
 #kubectl label namespace default istio-injection=disabled
 #kubectl apply -f <(istioctl kube-inject -f istio-*/samples/bookinfo/platform/kube/bookinfo.yaml)
-kubectl apply -f /vagrant/manifests/bookinfo.yaml
-kubectl apply -f /vagrant/manifests/bookinfo-gateway.yaml
+kubectl apply -f $MANIFESTS_DIR/bookinfo.yaml
+kubectl apply -f $MANIFESTS_DIR/bookinfo-gateway.yaml
 
 #watch -n 1 curl -o /dev/null -s -w %{http_code} -HHost:bookinfo.istio.k3s.local http://10.0.2.15/productpage
 
-#kubectl apply -f /vagrant/manifests/reviews-v1-90-v2-10.yaml
-#kubectl apply -f /vagrant/manifests/reviews-all-versions.yaml
-#kubectl apply -f /vagrant/manifests/reviews-all-v2.yaml
+#kubectl apply -f $MANIFESTS/reviews-v1-90-v2-10.yaml
+#kubectl apply -f $MANIFESTS/reviews-all-versions.yaml
+#kubectl apply -f $MANIFESTS/reviews-all-v2.yaml
 
-
-# kubectl apply -f /vagrant/manifests/sticky-svc.yaml
+#kubectl apply -f $MANIFESTS/manifests/sticky-svc.yaml
 #curl -HHost:sticky-svc.istio.k3s.local -H "x-user: hoge" http://10.0.2.15/ping
 
 # while true; do curl -s -H 'x-user: hoge' -HHost:sticky-svc.istio.k3s.local http://10.0.2.15/ping; echo; sleep 1; done
 
+touch /tmp/bootstraped
