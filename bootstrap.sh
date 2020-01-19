@@ -82,7 +82,14 @@ sudo cp -p istio-*/bin/istioctl /usr/local/bin/
 
 kubectl get pod 
 kubectl get node
-/usr/local/bin/istioctl manifest apply --set profile=default
+
+exit 0
+
+echo "#################################################################################"
+echo "# Deploy Istio"
+echo "#################################################################################"
+#/usr/local/bin/istioctl manifest apply --set profile=default
+/usr/local/bin/istioctl manifest apply --set profile=demo
 
 kubectl get pod -n istio-system
 
@@ -98,7 +105,6 @@ do
   fi
 done
 
-echo "demo"
 kubectl apply -f istio-*/samples/httpbin/httpbin.yaml
 export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
@@ -111,9 +117,12 @@ echo $SECURE_INGRESS_PORT
 kubectl apply -f /vagrant/manifests/istio-gateway-sample.yaml
 kubectl apply -f /vagrant/manifests/istio-vs-sample.yaml
 
-curl -I -HHost:httpbin.example.com http://$INGRESS_HOST:$INGRESS_PORT/status/200
+curl -I -HHost:httpbin.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/status/200
 
-kubectl apply -f /vagrant/manifests/istio-gateway-prometheus.yaml
+echo "# whoami"
+kubectl apply -f /vagrant/manifests/istio-whoami.yaml
+
+curl -HHost:whoami.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
 
 #curl -I -HHost:prometheus.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
 
@@ -134,4 +143,24 @@ kubectl apply -f /vagrant/manifests/istio-tracing.yaml
 echo "# grafana"
 kubectl apply -f /vagrant/manifests/istio-grafana.yaml
 
+echo "#################################################################################"
+echo "# Deploy Bookinfo"
+echo "#################################################################################"
+kubectl label namespace default istio-injection=enabled
+#kubectl label namespace default istio-injection=disabled
+#kubectl apply -f <(istioctl kube-inject -f istio-*/samples/bookinfo/platform/kube/bookinfo.yaml)
+kubectl apply -f /vagrant/manifests/bookinfo.yaml
+kubectl apply -f /vagrant/manifests/bookinfo-gateway.yaml
+
+#watch -n 1 curl -o /dev/null -s -w %{http_code} -HHost:bookinfo.istio.k3s.local http://10.0.2.15/productpage
+
+#kubectl apply -f /vagrant/manifests/reviews-v1-90-v2-10.yaml
+#kubectl apply -f /vagrant/manifests/reviews-all-versions.yaml
+#kubectl apply -f /vagrant/manifests/reviews-all-v2.yaml
+
+
+# kubectl apply -f /vagrant/manifests/sticky-svc.yaml
+#curl -HHost:sticky-svc.istio.k3s.local -H "x-user: hoge" http://10.0.2.15/ping
+
+# while true; do curl -s -H 'x-user: hoge' -HHost:sticky-svc.istio.k3s.local http://10.0.2.15/ping; echo; sleep 1; done
 

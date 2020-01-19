@@ -46,7 +46,7 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: httpbin
+  name: whoami
 spec:
   hosts:
   - "whoami.istio.k3s.local"
