@@ -1,0 +1,14 @@
+project: "your_id/kube-con-2017"
+repository: "github.com/your_id/kube-con-2017"
+cloneURL: "https://github.com/your_id/kube-con-2017.git"
+# Used by GitHub to compute hooks.
+# MAKE SURE YOU CHANGE THIS. It's basically a password.
+sharedSecret: "_put_something_secure_here"
+# this github token will allow brigade to access your repo
+github:
+  token: "8014c66b4eb5b57ed0e4ea7f1067c50189c806bb"
+secrets:
+  acrServer: _yourserver_.azurecr.io
+  acrUsername: _your_admin_account_
+  acrPassword: _your_super_secret_password_
+  slackWebhook: "https://hooks.slack.com/....."

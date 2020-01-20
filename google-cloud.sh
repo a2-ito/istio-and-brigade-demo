@@ -16,6 +16,14 @@ gcloud compute firewall-rules create default-allow-http \
    --allow tcp:15000-15100 \
    --network default
 
+gcloud compute firewall-rules create default-allow-brigade-7744 \
+   --allow tcp:7744 \
+   --network default
+
+gcloud compute firewall-rules create default-allow-http-8080 \
+   --allow tcp:8080 \
+   --network default
+
 echo "## Create Controllers VM"
 gcloud compute instances create istio-demo \
   --async \
@@ -94,5 +102,4 @@ for i in 1 2 3; do
     --zone australia-southeast1-a \
     --metadata block-project-ssh-keys=FALSE
 done
-
 
