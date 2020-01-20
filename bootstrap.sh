@@ -174,13 +174,21 @@ kubectl apply -f $MANIFESTS_DIR/bookinfo-gateway.yaml
 
 #watch -n 1 curl -o /dev/null -s -w %{http_code} -HHost:bookinfo.istio.k3s.local http://10.0.2.15/productpage
 
-#kubectl apply -f $MANIFESTS/reviews-v1-90-v2-10.yaml
-#kubectl apply -f $MANIFESTS/reviews-all-versions.yaml
-#kubectl apply -f $MANIFESTS/reviews-all-v2.yaml
+#kubectl apply -f $MANIFESTS_DIR/reviews-v1-90-v2-10.yaml
+#kubectl apply -f $MANIFESTS_DIR/reviews-all-versions.yaml
+#kubectl apply -f $MANIFESTS_DIR/reviews-all-v2.yaml
 
-#kubectl apply -f $MANIFESTS/manifests/sticky-svc.yaml
-#curl -HHost:sticky-svc.istio.k3s.local -H "x-user: hoge" http://10.0.2.15/ping
+# Demo - Sticky Session 1/2
+# kubectl apply -f $MANIFESTS_DIR/demo-sticky-session-1-before.yaml
+# curl -HHost:sticky-svc.istio.k3s.local -H "x-user: hoge" http://10.0.2.15/ping
+# while true; do curl -s -H 'x-user: hoge' -HHost:sticky-svc.istio.k3s.local http://10.14.20.127:8022/ping; echo; sleep 1; done
 
-# while true; do curl -s -H 'x-user: hoge' -HHost:sticky-svc.istio.k3s.local http://10.0.2.15/ping; echo; sleep 1; done
+# Demo - Sticky Session 2/2
+# kubectl apply -f $MANIFESTS/demo-sticky-session-1-destinationrule.yaml
+
+
+
+
+
 
 touch /tmp/bootstraped
