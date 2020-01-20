@@ -196,8 +196,8 @@ echo "# install Brigade"
 helm repo add brigade https://brigadecore.github.io/charts
 helm install brigade brigade/brigade --set rbac.enabled=true
 
-sudo yum install -y git
-git clone https://github.com/chzbrgr71/kube-con-2017.git
+#sudo yum install -y git
+#git clone https://github.com/chzbrgr71/kube-con-2017.git
 
 kubectl create namespace microsmack
 kubectl label namespace microsmack istio-injection=enabled

@@ -18,7 +18,7 @@ ENV IMAGE_BUILD_DATE $BUILD_DATE
 ENV IMAGE_TAG $IMAGE_TAG_REF
 
 WORKDIR /app
-ADD ./smackapi /app/
+ADD ./kube-con-2017-ito/smackapi /app/
 
 ENTRYPOINT /app/smackapi
 EXPOSE 8081
