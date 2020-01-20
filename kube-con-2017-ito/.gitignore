@@ -1,0 +1,6 @@
+**/.DS_Store
+secret.yaml
+smackweb/debug
+smackweb/smackweb
+jenkins-values.yaml
+brig-project.yaml
