@@ -1,6 +1,6 @@
 FROM golang
 
-ADD ./smackapi/*.go /app/
+ADD ./kube-con-2017-ito/smackapi/*.go /app/
 RUN cd /app && go get github.com/gorilla/mux && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi
 
 FROM alpine
@@ -22,7 +22,6 @@ ENV IMAGE_BUILD_DATE $BUILD_DATE
 ENV IMAGE_TAG $IMAGE_TAG_REF
 
 WORKDIR /app
-#ADD ./smackapi /app/
 COPY --from=0 /app/smackapi /app/
 
 ENTRYPOINT /app/smackapi

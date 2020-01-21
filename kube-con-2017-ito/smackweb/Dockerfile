@@ -1,6 +1,6 @@
 FROM golang
 
-ADD ./smackweb/*.go /app/
+ADD ./kube-con-2017-ito/smackweb/*.go /app/
 RUN cd /app && go get github.com/gorilla/mux && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackweb
 
 FROM alpine
@@ -23,7 +23,6 @@ ENV APP_VERSION $VERSION
 ENV IMAGE_BUILD_DATE $BUILD_DATE
 
 WORKDIR /app
-#ADD ./smackweb /app/
 COPY --from=0 /app/smackweb /app/
 
 ENTRYPOINT /app/smackweb
