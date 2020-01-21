@@ -1,5 +1,9 @@
+FROM golang
+
+ADD ./smackweb/*.go /app/
+RUN cd /app && go get github.com/gorilla/mux && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackweb
+
 FROM alpine
-MAINTAINER Brian Redmond <brianisrunning@gmail.com>
 
 ARG VCS_REF
 ARG BUILD_DATE
@@ -19,7 +23,8 @@ ENV APP_VERSION $VERSION
 ENV IMAGE_BUILD_DATE $BUILD_DATE
 
 WORKDIR /app
-ADD ./smackweb /app/
+#ADD ./smackweb /app/
+COPY --from=0 /app/smackweb /app/
 
 ENTRYPOINT /app/smackweb
 EXPOSE 8080

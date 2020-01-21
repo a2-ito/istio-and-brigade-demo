@@ -1,5 +1,9 @@
+FROM golang
+
+ADD ./smackapi/*.go /app/
+RUN cd /app && go get github.com/gorilla/mux && GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o smackapi
+
 FROM alpine
-MAINTAINER Brian Redmond <brianisrunning@gmail.com>
 
 ARG VCS_REF
 ARG BUILD_DATE
@@ -18,7 +22,8 @@ ENV IMAGE_BUILD_DATE $BUILD_DATE
 ENV IMAGE_TAG $IMAGE_TAG_REF
 
 WORKDIR /app
-ADD ./kube-con-2017-ito/smackapi /app/
+#ADD ./smackapi /app/
+COPY --from=0 /app/smackapi /app/
 
 ENTRYPOINT /app/smackapi
 EXPOSE 8081

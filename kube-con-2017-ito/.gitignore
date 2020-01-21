@@ -1,5 +1,6 @@
 **/.DS_Store
 secret.yaml
+smackapi/smackapi
 smackweb/debug
 smackweb/smackweb
 jenkins-values.yaml

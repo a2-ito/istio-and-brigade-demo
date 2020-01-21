@@ -27,12 +27,17 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func returnConfig(w http.ResponseWriter, r *http.Request) {
+
+        fmt.Println("my msg here")
+
 	var appVersion = os.Getenv("IMAGE_TAG")
 	var backColor = "SteelBlue"
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
 	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
 	var kubePodName = os.Getenv("KUBE_POD_NAME")
 	var kubePodIP = os.Getenv("KUBE_POD_IP")
+
+        fmt.Printf("appVersion: %s\n", appVersion)
 
 	if len(appVersion) == 0 {
 		appVersion = "master-testing"
