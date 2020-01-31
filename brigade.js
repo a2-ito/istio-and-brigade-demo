@@ -13,8 +13,8 @@ events.on("exec", () => {
 
 events.on("push", (brigadeEvent, project) => {
   console.log("Hello push event!!!")
-  var docker = JSON.parse(brigadeEvent.payload)
-  console.log(docker)
+  var payload = JSON.parse(brigadeEvent.payload)
+  console.log(payload)
 });
 
 events.on("image_push", (e, p) => {
