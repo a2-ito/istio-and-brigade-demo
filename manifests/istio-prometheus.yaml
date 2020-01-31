@@ -9,12 +9,11 @@ spec:
     istio: ingressgateway
   servers:
   - port:
-      number: 80
+      number: 15030
       name: http-prom
       protocol: HTTP
     hosts:
     - "prometheus.istio.k3s.local"
-      #- "*"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -24,12 +23,11 @@ metadata:
 spec:
   hosts:
   - "prometheus.istio.k3s.local"
-    #- "*"
   gateways:
   - prometheus-gateway
   http:
   - match:
-    - port: 80
+    - port: 15030
     route:
     - destination:
         host: prometheus

@@ -1,27 +1,44 @@
-
+#!/bin/bash
 echo "################################################################################"
 echo "# bootstrap with Google Cloud"
 echo "################################################################################"
+if [ $# -eq 1 ]; then
+  SSH_USER=$1
+else
+  SSH_USER=akihiko
+fi
 
+echo SSH_USER: $SSH_USER
 
+_ip=`curl -sS inet-ip.info`
+#echo ${_ip}
 
 gcloud config set compute/region australia-southeast1
 gcloud config set compute/zone australia-southeast1-a
 
 gcloud compute firewall-rules create default-allow-6443 \
    --allow tcp:6443 \
+   --source-ranges ${_ip}/32 \
    --network default
 
 gcloud compute firewall-rules create default-allow-http \
-   --allow tcp:15000-15100 \
+   --allow tcp:15000-15100,tcp:80 \
+   --source-ranges ${_ip}/32 \
    --network default
 
 gcloud compute firewall-rules create default-allow-brigade-7744 \
-   --allow tcp:7744 \
+   --allow tcp:7744,7745 \
+   --source-ranges ${_ip}/32 \
    --network default
 
 gcloud compute firewall-rules create default-allow-http-8080 \
    --allow tcp:8080 \
+   --source-ranges ${_ip}/32 \
+   --network default
+
+gcloud compute firewall-rules create default-allow-ssh \
+   --allow tcp:22 \
+   --source-ranges ${_ip}/32 \
    --network default
 
 echo "## Create Controllers VM"
@@ -50,7 +67,7 @@ sleep 10
 _ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
 
 scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r \
-  ./manifests akihiko@${_ip}:/tmp/
+  ./manifests ${SSH_USER}@${_ip}:/tmp/
 
 sleep 60
 
@@ -58,7 +75,7 @@ rm -f ./kubeconfig
 while true
 do
   scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' \
-    akihiko@${_ip}:/tmp/kubeconfig ./kubeconfig
+    ${SSH_USER}@${_ip}:/tmp/kubeconfig ./kubeconfig
 
 	if [ ! -e "kubeconfig" ]; then
     echo current num of running :
@@ -71,7 +88,7 @@ done
 
 sed -i s/0.0.0.0/${_ip}/g kubeconfig
 
-echo "ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' akihiko@${_ip}"
+echo "ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' ${SSH_USER}@${_ip}"
 exit 0 
 
 echo "## Create Workers VM"

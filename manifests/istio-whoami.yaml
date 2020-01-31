@@ -60,4 +60,4 @@ spec:
     - destination:
         port:
           number: 80
-        host: whoami-service
+          host: whoami-service

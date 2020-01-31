@@ -19,6 +19,8 @@ do
   fi
 done
 
+sudo yum install -y wget 
+
 echo "#################################################################################"
 echo "# k3s"
 echo "#################################################################################"
@@ -39,7 +41,6 @@ sudo mkdir /var/log/kubernetes
 #_ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
 
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v0.9.1 sh -s - \
---no-deploy traefik \
 --write-kubeconfig-mode 600 \
 --data-dir=/app/var/lib/rancher/k3s \
 --bind-address=0.0.0.0 \
@@ -57,6 +58,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v0.9.1 sh -s - \
 --kube-controller-arg=log-file=/var/log/kubernetes/kube-controller-manager.log \
 --kube-controller-arg=logtostderr=false
 
+#--no-deploy traefik \
 #--kube-apiserver-arg=enable-admission-plugins=PodSecurityPolicy
 #--kube-apiserver-arg=audit-policy-file=/vagrant/k8s-yamls/audit-policy.yaml \
 #--kube-apiserver-arg=bind-address=0.0.0.0 \
@@ -99,32 +101,33 @@ sudo chown vagrant:vagrant ~/.kube/config
 export KUBECONFIG=~/.kube/config
 echo "export KUBECONFIG=~/.kube/onfig" >> /home/vagrant/.bashrc
 
-echo "istio"
-curl -L -s -S https://istio.io/downloadIstio | sh -
-sudo cp -p istio-*/bin/istioctl /usr/local/bin/
-
 kubectl get pod 
 kubectl get node
+
 
 echo "#################################################################################"
 echo "# Deploy Istio"
 echo "#################################################################################"
+echo "istio"
+curl -L -s -S https://istio.io/downloadIstio | sh -
+sudo cp -p istio-*/bin/istioctl /usr/local/bin/
+
 #/usr/local/bin/istioctl manifest apply --set profile=default
-/usr/local/bin/istioctl manifest apply --set profile=demo
+#/usr/local/bin/istioctl manifest apply --set profile=demo
 
 kubectl get pod -n istio-system
 
-while true
-do
-  _status=`kubectl get pod -n istio-system | grep pilot | tail -n1 | awk '{print $3}'`
-  if [ "${_status}" != "Running" ]; then
-    echo current status : ${_status}
-    sleep 10
-  else
-    echo current status : ${_status}
-    break
-  fi
-done
+#while true
+#do
+#  _status=`kubectl get pod -n istio-system | grep pilot | tail -n1 | awk '{print $3}'`
+#  if [ "${_status}" != "Running" ]; then
+#    echo current status : ${_status}
+#    sleep 10
+#  else
+#    echo current status : ${_status}
+#    break
+#  fi
+#done
 
 kubectl apply -f istio-*/samples/httpbin/httpbin.yaml
 export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -186,26 +189,33 @@ kubectl apply -f $MANIFESTS_DIR/bookinfo-gateway.yaml
 # Demo - Sticky Session 2/2
 # kubectl apply -f $MANIFESTS/demo-sticky-session-1-destinationrule.yaml
 
-echo "# Install Helm"
-#wget https://get.helm.sh/helm-v3.0.2-linux-amd64.tar.gz
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-chmod 700 get_helm.sh
-./get_helm.sh
+echo "#################################################################################"
+echo "# Traefik dashboard configuration"
+echo "#################################################################################"
+kubectl apply -f $MANIFESTS_DIR/traefik-configmap.yaml
+kubectl apply -f $MANIFESTS_DIR/traefik-service.yaml
+kubectl apply -f $MANIFESTS_DIR/traefik-ingress-webui-http.yaml
 
-echo "# install Brigade"
-helm repo add brigade https://brigadecore.github.io/charts
-helm install brigade brigade/brigade --set rbac.enabled=true
+traefikpod=$(kubectl get pod -n kube-system | grep -e '^traefik' | cut -d' ' -f1)
+kubectl delete pod -n kube-system $traefikpod
+
+echo "#################################################################################"
+echo "# Install Helm"
+echo "#################################################################################"
+wget https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz
+tar xzf helm-v2.16.1-linux-amd64.tar.gz
+sudo mv linux-amd64/helm /usr/local/bin
+
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
+
+sleep 10
+
+helm init --service-account=tiller --upgrade
 
 #sudo yum install -y git
 #git clone https://github.com/chzbrgr71/kube-con-2017.git
-
-kubectl create namespace microsmack
-kubectl label namespace microsmack istio-injection=enabled
-
-# First install the web front-end deployment/service
-kubectl create -f kube-con-2017/web.yaml -n microsmack
-# Then the headless service for our api
-kubectl create -f kube-con-2017/api-svc.yaml -n microsmack
 
 #echo "# Install Docker Registry"
 #sudo yum install install -y docker
@@ -218,10 +228,28 @@ kubectl create -f kube-con-2017/api-svc.yaml -n microsmack
 #docker push localhost:5000/hello-world:latest
 #curl http://localhost:5000/v2/_catalog
 
+echo "#################################################################################"
+echo "# install Brigade"
+echo "#################################################################################"
+wget -O brig https://github.com/brigadecore/brigade/releases/download/v1.2.1/brig-linux-amd64
+chmod +x brig
+sudo mv brig /usr/local/bin/
+
+kubectl create namespace brigade
+helm repo add brigade https://brigadecore.github.io/charts
+helm install -n brigade brigade/brigade --set rbac.enabled=true --set brigade-github-app.enabled=ture
+#helm install -n brigade brigade/brigade --namespace brigade --set rbac.enabled=true
+
 pwd >> /tmp/bootstraped
-#touch /tmp/bootstraped
+
 exit 0
 
+kubectl create namespace microsmack
+kubectl label namespace microsmack istio-injection=enabled
+
+# First install the web front-end deployment/service
+kubectl create -f kube-con-2017/web.yaml -n microsmack
+# Then the headless service for our api
+kubectl create -f kube-con-2017/api-svc.yaml -n microsmack
+
 helm install --name kube-con-2017 brigade/brigade-project -f $MANIFESTS_DIR/brig-project.yaml
-
-
