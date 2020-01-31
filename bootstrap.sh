@@ -104,6 +104,17 @@ echo "export KUBECONFIG=~/.kube/onfig" >> /home/vagrant/.bashrc
 kubectl get pod 
 kubectl get node
 
+while true
+do
+  _status=`kubectl get pod -n istio-system | grep -e "^traefik" | tail -n1 | awk '{print $3}'`
+  if [ "${_status}" != "Running" ]; then
+    echo current status : ${_status}
+    sleep 10
+  else
+    echo current status : ${_status}
+    break
+  fi
+done
 
 echo "#################################################################################"
 echo "# Deploy Istio"

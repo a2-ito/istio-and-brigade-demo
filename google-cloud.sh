@@ -5,7 +5,7 @@ echo "##########################################################################
 if [ $# -eq 1 ]; then
   SSH_USER=$1
 else
-  SSH_USER=akihiko
+  SSH_USER=a2-ito
 fi
 
 echo SSH_USER: $SSH_USER
@@ -16,32 +16,38 @@ _ip=`curl -sS inet-ip.info`
 gcloud config set compute/region australia-southeast1
 gcloud config set compute/zone australia-southeast1-a
 
+gcloud compute firewall-rules delete default-allow-6443 --quiet
 gcloud compute firewall-rules create default-allow-6443 \
    --allow tcp:6443 \
    --source-ranges ${_ip}/32 \
    --network default
 
+gcloud compute firewall-rules delete default-allow-http --quiet
 gcloud compute firewall-rules create default-allow-http \
    --allow tcp:15000-15100,tcp:80 \
    --source-ranges ${_ip}/32 \
    --network default
 
+gcloud compute firewall-rules delete default-allow-brigade-7744 --quiet
 gcloud compute firewall-rules create default-allow-brigade-7744 \
    --allow tcp:7744,7745 \
    --source-ranges ${_ip}/32 \
    --network default
 
+gcloud compute firewall-rules delete default-allow-http-8080 --quiet
 gcloud compute firewall-rules create default-allow-http-8080 \
    --allow tcp:8080 \
    --source-ranges ${_ip}/32 \
    --network default
 
+gcloud compute firewall-rules delete default-allow-ssh --quiet
 gcloud compute firewall-rules create default-allow-ssh \
    --allow tcp:22 \
    --source-ranges ${_ip}/32 \
    --network default
 
 echo "## Create Controllers VM"
+gcloud compute instances delete istio-demo --quiet
 gcloud compute instances create istio-demo \
   --async \
   --boot-disk-size 100GB \
