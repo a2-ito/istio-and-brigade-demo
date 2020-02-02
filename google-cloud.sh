@@ -28,9 +28,9 @@ gcloud compute firewall-rules create default-allow-http \
    --source-ranges ${_ip}/32 \
    --network default
 
-gcloud compute firewall-rules delete default-allow-brigade-7744 --quiet
-gcloud compute firewall-rules create default-allow-brigade-7744 \
-   --allow tcp:7744,7745 \
+gcloud compute firewall-rules delete default-allow-brigade --quiet
+gcloud compute firewall-rules create default-allow-brigade \
+   --allow tcp:7744,tcp:7745 \
    --source-ranges ${_ip}/32 \
    --network default
 
@@ -47,7 +47,11 @@ gcloud compute firewall-rules create default-allow-ssh \
    --network default
 
 echo "## Create Controllers VM"
-gcloud compute instances delete istio-demo --quiet
+_num=`gcloud compute instances list | grep istio-demo | wc -l`
+if [ ${_num} -eq 1 ]; then
+  gcloud compute instances delete istio-demo --quiet
+	sleep 10
+fi
 gcloud compute instances create istio-demo \
   --async \
   --boot-disk-size 100GB \

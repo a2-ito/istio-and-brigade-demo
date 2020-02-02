@@ -106,7 +106,7 @@ kubectl get node
 
 while true
 do
-  _status=`kubectl get pod -n istio-system | grep -e "^traefik" | tail -n1 | awk '{print $3}'`
+  _status=`kubectl get pod -n kube-system | grep "traefik" | tail -n1 | awk '{print $3}'`
   if [ "${_status}" != "Running" ]; then
     echo current status : ${_status}
     sleep 10
@@ -221,8 +221,11 @@ kubectl create serviceaccount --namespace kube-system tiller
 kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
 kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
-sleep 10
-
+echo helm init --service-account=tiller --upgrade
+cd /root
+sleep 30
+HOME=/root
+HELM_HOME=/root
 helm init --service-account=tiller --upgrade
 
 #sudo yum install -y git
@@ -247,12 +250,22 @@ chmod +x brig
 sudo mv brig /usr/local/bin/
 
 kubectl create namespace brigade
+
+kubectl get pod -n kube-system
+
+env
+
+echo $HOME
+pwd
+echo helm repo add brigade https://brigadecore.github.io/charts
 helm repo add brigade https://brigadecore.github.io/charts
 helm install -n brigade brigade/brigade --set rbac.enabled=true --set brigade-github-app.enabled=ture
 #helm install -n brigade brigade/brigade --namespace brigade --set rbac.enabled=true
 
-pwd >> /tmp/bootstraped
+kubectl get pod -n kube-system
+helm repo add brigade https://brigadecore.github.io/charts
 
+pwd >> /tmp/bootstraped
 exit 0
 
 kubectl create namespace microsmack
