@@ -5,8 +5,10 @@ echo "# Environment Values "
 echo "#################################################################################"
 if [ -e "/vagrant" ]; then
   MANIFESTS_DIR=/vagrant/manifests
+  export HOME=/home/vagrant
 else
   MANIFESTS_DIR=/tmp/manifests
+  export HOME=/root
 fi
 
 while true
@@ -119,14 +121,12 @@ done
 echo "#################################################################################"
 echo "# Deploy Istio"
 echo "#################################################################################"
-echo "istio"
-curl -L -s -S https://istio.io/downloadIstio | sh -
-sudo cp -p istio-*/bin/istioctl /usr/local/bin/
-
+#curl -L -s -S https://istio.io/downloadIstio | sh -
+#sudo cp -p istio-*/bin/istioctl /usr/local/bin/
 #/usr/local/bin/istioctl manifest apply --set profile=default
 #/usr/local/bin/istioctl manifest apply --set profile=demo
 
-kubectl get pod -n istio-system
+#kubectl get pod -n istio-system
 
 #while true
 #do
@@ -140,23 +140,23 @@ kubectl get pod -n istio-system
 #  fi
 #done
 
-kubectl apply -f istio-*/samples/httpbin/httpbin.yaml
-export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
-export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+#kubectl apply -f istio-*/samples/httpbin/httpbin.yaml
+#export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+#export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+#export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
 
-echo $INGRESS_HOST
-echo $INGRESS_PORT
-echo $SECURE_INGRESS_PORT
+#echo $INGRESS_HOST
+#echo $INGRESS_PORT
+#echo $SECURE_INGRESS_PORT
 
-kubectl apply -f $MANIFESTS_DIR/istio-gateway-sample.yaml
-kubectl apply -f $MANIFESTS_DIR/istio-vs-sample.yaml
+#kubectl apply -f $MANIFESTS_DIR/istio-gateway-sample.yaml
+#kubectl apply -f $MANIFESTS_DIR/istio-vs-sample.yaml
 
-curl -I -HHost:httpbin.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/status/200
+#curl -I -HHost:httpbin.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/status/200
 
-echo "# whoami"
-kubectl apply -f $MANIFESTS_DIR/istio-whoami.yaml
-curl -HHost:whoami.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
+#echo "# whoami"
+#kubectl apply -f $MANIFESTS_DIR/istio-whoami.yaml
+#curl -HHost:whoami.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
 
 #curl -I -HHost:prometheus.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
 
@@ -165,26 +165,26 @@ curl -HHost:whoami.istio.k3s.local http://$INGRESS_HOST:$INGRESS_PORT/
 #  -p='[{"op": "replace", "path": "/spec/ports/1/port", "value":8022}]'
 
 echo "# prometheus"
-kubectl apply -f $MANIFESTS_DIR/istio-gateway-prometheus.yaml
-kubectl apply -f $MANIFESTS_DIR/istio-vs-prometheus.yaml
+#kubectl apply -f $MANIFESTS_DIR/istio-gateway-prometheus.yaml
+#kubectl apply -f $MANIFESTS_DIR/istio-vs-prometheus.yaml
 
 echo "# kiali"
-kubectl apply -f $MANIFESTS_DIR/istio-kiali.yaml
+#kubectl apply -f $MANIFESTS_DIR/istio-kiali.yaml
 
 echo "# tracing"
-kubectl apply -f $MANIFESTS_DIR/istio-tracing.yaml
+#kubectl apply -f $MANIFESTS_DIR/istio-tracing.yaml
 
 echo "# grafana"
-kubectl apply -f $MANIFESTS_DIR/istio-grafana.yaml
+#kubectl apply -f $MANIFESTS_DIR/istio-grafana.yaml
 
 echo "#################################################################################"
 echo "# Deploy Bookinfo"
 echo "#################################################################################"
-kubectl label namespace default istio-injection=enabled
+#kubectl label namespace default istio-injection=enabled
 #kubectl label namespace default istio-injection=disabled
 #kubectl apply -f <(istioctl kube-inject -f istio-*/samples/bookinfo/platform/kube/bookinfo.yaml)
-kubectl apply -f $MANIFESTS_DIR/bookinfo.yaml
-kubectl apply -f $MANIFESTS_DIR/bookinfo-gateway.yaml
+#kubectl apply -f $MANIFESTS_DIR/bookinfo.yaml
+#kubectl apply -f $MANIFESTS_DIR/bookinfo-gateway.yaml
 
 #watch -n 1 curl -o /dev/null -s -w %{http_code} -HHost:bookinfo.istio.k3s.local http://10.0.2.15/productpage
 
@@ -221,11 +221,12 @@ kubectl create serviceaccount --namespace kube-system tiller
 kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
 kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
+
+#sleep 30
+#export HELM_HOME=/home/vagrant
+#cd $HELM_HOME
+
 echo helm init --service-account=tiller --upgrade
-cd /root
-sleep 30
-HOME=/root
-HELM_HOME=/root
 helm init --service-account=tiller --upgrade
 
 #sudo yum install -y git
@@ -255,8 +256,11 @@ kubectl get pod -n kube-system
 
 env
 
+sleep 30
+
 echo $HOME
 pwd
+
 echo helm repo add brigade https://brigadecore.github.io/charts
 helm repo add brigade https://brigadecore.github.io/charts
 helm install -n brigade brigade/brigade --set rbac.enabled=true --set brigade-github-app.enabled=ture
@@ -267,6 +271,13 @@ helm repo add brigade https://brigadecore.github.io/charts
 
 pwd >> /tmp/bootstraped
 exit 0
+
+kubectl create secret docker-registry regcred \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username=[username] \
+  --docker-password=[password] \
+  --docker-email=hi.mound@gmail.com
+kubectl create -f $MANIFESTS/kaniko.yaml
 
 kubectl create namespace microsmack
 kubectl label namespace microsmack istio-injection=enabled
