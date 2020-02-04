@@ -2,12 +2,24 @@
 echo "################################################################################"
 echo "# bootstrap with Google Cloud"
 echo "################################################################################"
-if [ $# -eq 1 ]; then
-  SSH_USER=$1
+
+CMDNAME=`basename $0`
+
+while getopts u:p OPT
+do
+  case $OPT in
+    "u" ) FLG_U="true" ; VALUE_U="$OPTARG" ;;
+    "p" ) FLG_UPDATE="true" ;;
+      * ) echo "Usage: $CMDNAME [-u USER] [--update]" 1>&2
+          exit 1 ;;
+  esac
+done
+
+if [ "$FLG_U" = true ]; then
+  SSH_USER=${VALUE_U}
 else
   SSH_USER=a2-ito
 fi
-
 echo SSH_USER: $SSH_USER
 
 _ip=`curl -sS inet-ip.info`
@@ -16,34 +28,39 @@ _ip=`curl -sS inet-ip.info`
 gcloud config set compute/region australia-southeast1
 gcloud config set compute/zone australia-southeast1-a
 
-gcloud compute firewall-rules delete default-allow-6443 --quiet
-gcloud compute firewall-rules create default-allow-6443 \
-   --allow tcp:6443 \
-   --source-ranges ${_ip}/32 \
-   --network default
+_num=`gcloud compute firewall-rules list 2>/dev/null | grep default-allow-6443 | wc -l`
+if [ ${_num} -ne 1 ] || [ "$FLG_UPDATE" = true ]; then
+  gcloud compute firewall-rules delete default-allow-6443 --quiet
+	gcloud compute firewall-rules create default-allow-6443 \
+    --allow tcp:6443 \
+    --source-ranges ${_ip}/32 \
+    --network default
+fi
 
-gcloud compute firewall-rules delete default-allow-http --quiet
-gcloud compute firewall-rules create default-allow-http \
-   --allow tcp:30000-31000,tcp:15000-15100,tcp:80 \
-   --network default
+_num=`gcloud compute firewall-rules list 2>/dev/null | grep default-allow-http | wc -l`
+if [ ${_num} -ne 1 ] || [ "$FLG_UPDATE" = true ]; then
+  gcloud compute firewall-rules delete default-allow-http --quiet
+  gcloud compute firewall-rules create default-allow-http \
+    --allow tcp:30000-31000,tcp:15000-15100,tcp:80,tcp:8080 \
+    --network default
+fi
 
-gcloud compute firewall-rules delete default-allow-brigade --quiet
-gcloud compute firewall-rules create default-allow-brigade \
-   --allow tcp:7744,tcp:7745 \
-   --source-ranges ${_ip}/32 \
-   --network default
+_num=`gcloud compute firewall-rules list 2>/dev/null | grep default-allow-brigade | wc -l`
+if [ ${_num} -ne 1 ] || [ "$FLG_UPDATE" = true ]; then
+  gcloud compute firewall-rules delete default-allow-brigade --quiet
+  gcloud compute firewall-rules create default-allow-brigade \
+    --allow tcp:7744,tcp:7745 \
+    --network default
+fi
 
-gcloud compute firewall-rules delete default-allow-http-8080 --quiet
-gcloud compute firewall-rules create default-allow-http-8080 \
-   --allow tcp:8080 \
-   --source-ranges ${_ip}/32 \
-   --network default
-
-gcloud compute firewall-rules delete default-allow-ssh --quiet
-gcloud compute firewall-rules create default-allow-ssh \
-   --allow tcp:22 \
-   --source-ranges ${_ip}/32 \
-   --network default
+_num=`gcloud compute firewall-rules list 2>/dev/null | grep default-allow-ssh | wc -l`
+if [ ${_num} -ne 1 ] || [ "$FLG_UPDATE" = true ]; then
+  gcloud compute firewall-rules delete default-allow-ssh --quiet
+	gcloud compute firewall-rules create default-allow-ssh \
+    --allow tcp:22 \
+    --source-ranges ${_ip}/32 \
+    --network default
+fi
 
 echo "## Create Controllers VM"
 _num=`gcloud compute instances list | grep istio-demo | wc -l`
@@ -51,6 +68,7 @@ if [ ${_num} -eq 1 ]; then
   gcloud compute instances delete istio-demo --quiet
 	sleep 10
 fi
+
 gcloud compute instances create istio-demo \
   --async \
   --boot-disk-size 100GB \

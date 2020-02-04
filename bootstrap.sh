@@ -263,9 +263,15 @@ pwd
 
 echo helm repo add brigade https://brigadecore.github.io/charts
 helm repo add brigade https://brigadecore.github.io/charts
+helm install -n brigade brigade/brigade \
+  --set rbac.enabled=true \
+	--set api.service.type=LoadBalancer
 
 pwd >> /tmp/bootstraped
 exit 0
+
+helm install -n brigade brigade/brigade-project \
+	-f $MANIFESTS_DIR/brigade-project-values.yaml
 
 export KUBECONFIG=/root/.kube/config
 helm install -n brigade brigade/brigade \
