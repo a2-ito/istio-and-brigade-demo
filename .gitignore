@@ -1,2 +1,4 @@
 .vagrant/
 kubeconfig
+manifests/values.yaml
+*.pem

@@ -24,8 +24,7 @@ gcloud compute firewall-rules create default-allow-6443 \
 
 gcloud compute firewall-rules delete default-allow-http --quiet
 gcloud compute firewall-rules create default-allow-http \
-   --allow tcp:15000-15100,tcp:80 \
-   --source-ranges ${_ip}/32 \
+   --allow tcp:30000-31000,tcp:15000-15100,tcp:80 \
    --network default
 
 gcloud compute firewall-rules delete default-allow-brigade --quiet

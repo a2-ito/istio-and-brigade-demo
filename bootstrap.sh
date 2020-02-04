@@ -108,7 +108,7 @@ kubectl get node
 
 while true
 do
-  _status=`kubectl get pod -n kube-system | grep "traefik" | tail -n1 | awk '{print $3}'`
+  _status=`kubectl get pod -n kube-system | grep "coredns" | tail -n1 | awk '{print $3}'`
   if [ "${_status}" != "Running" ]; then
     echo current status : ${_status}
     sleep 10
@@ -263,14 +263,20 @@ pwd
 
 echo helm repo add brigade https://brigadecore.github.io/charts
 helm repo add brigade https://brigadecore.github.io/charts
-helm install -n brigade brigade/brigade --set rbac.enabled=true --set brigade-github-app.enabled=ture
-#helm install -n brigade brigade/brigade --namespace brigade --set rbac.enabled=true
-
-kubectl get pod -n kube-system
-helm repo add brigade https://brigadecore.github.io/charts
 
 pwd >> /tmp/bootstraped
 exit 0
+
+export KUBECONFIG=/root/.kube/config
+helm install -n brigade brigade/brigade \
+  --set rbac.enabled=true \
+	--set brigade-github-app.enabled=ture \
+	--set brigade-github-app.service.type=LoadBalancer \
+	-f $MANIFESTS_DIR/brigade-github-app-values.yaml
+	-f $MANIFESTS_DIR/brigade-project-values.yaml
+kubectl patch svc brigade-brigade-github-app -p '{"spec": {"type": "LoadBalancer", "externalIPs":["10.152.0.63"]}}'
+#helm install -n brigade brigade/brigade --namespace brigade --set rbac.enabled=true
+
 
 kubectl create secret docker-registry regcred \
   --docker-server=https://index.docker.io/v1/ \
