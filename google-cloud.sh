@@ -73,17 +73,17 @@ gcloud compute instances create istio-demo \
   --async \
   --boot-disk-size 100GB \
   --can-ip-forward \
-  --image-family centos-7 \
-  --image-project centos-cloud \
+  --image-family ubuntu-1804-lts \
+  --image-project ubuntu-os-cloud \
   --machine-type n1-standard-1 \
   --scopes compute-rw,storage-ro,service-management,service-control,logging-write,monitoring \
   --tags kubernetes-the-hard-way,controller \
   --zone=australia-southeast1-a \
-  --preemptible \
-  --metadata-from-file startup-script=./bootstrap.sh
+  --preemptible
+#  --metadata-from-file startup-script=./bootstrap.sh
 
-#  --image-family ubuntu-1804-lts \
-#  --image-project ubuntu-os-cloud \
+#  --image-family centos-7 \
+#  --image-project centos-cloud \
 
 gcloud compute instances add-metadata istio-demo \
   --zone australia-southeast1-a \
@@ -95,6 +95,9 @@ _ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConf
 
 scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r \
   ./manifests ${SSH_USER}@${_ip}:/tmp/
+
+echo "ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' ${SSH_USER}@${_ip}"
+exit 0 
 
 sleep 60
 
@@ -114,8 +117,6 @@ done
 
 sed -i s/0.0.0.0/${_ip}/g kubeconfig
 
-echo "ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' ${SSH_USER}@${_ip}"
-exit 0 
 
 echo "## Create Workers VM"
 #for i in 1 2 3; do
