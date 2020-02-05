@@ -1,6 +1,6 @@
 # SELinux
 
-echo "#################################################################################"
+ocho "#################################################################################"
 echo "# Environment Values "
 echo "#################################################################################"
 if [ -e "/vagrant" ]; then
@@ -42,8 +42,8 @@ sudo mkdir /var/log/kubernetes
 
 #_ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v0.9.1 sh -s - \
---write-kubeconfig-mode 600 \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.0.1 sh -s - \
+--write-kubeconfig-mode=664 \
 --data-dir=/app/var/lib/rancher/k3s \
 --bind-address=0.0.0.0 \
 --kube-apiserver-arg=audit-log-path=/var/log/k3saudit/audit.log \
@@ -93,6 +93,8 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v0.9.1 sh -s - \
 #--node-ip=127.0.0.1 \
 #--kube-apiserver-arg=tls-cipher-suites="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384" \
 #--kubelet-arg=tls-cipher-suites="TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA34"
+
+sudo systemctl restart k3s
 
 mkdir ~/.kube
 sudo cp -p /etc/rancher/k3s/k3s.yaml ~/.kube/config
@@ -213,7 +215,7 @@ kubectl delete pod -n kube-system $traefikpod
 echo "#################################################################################"
 echo "# Install Helm"
 echo "#################################################################################"
-wget https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz
+wget -nv https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz
 tar xzf helm-v2.16.1-linux-amd64.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin
 
@@ -246,7 +248,7 @@ helm init --service-account=tiller --upgrade
 echo "#################################################################################"
 echo "# install Brigade"
 echo "#################################################################################"
-wget -O brig https://github.com/brigadecore/brigade/releases/download/v1.2.1/brig-linux-amd64
+wget -nv -O brig https://github.com/brigadecore/brigade/releases/download/v1.2.1/brig-linux-amd64
 chmod +x brig
 sudo mv brig /usr/local/bin/
 
@@ -263,13 +265,22 @@ pwd
 
 echo helm repo add brigade https://brigadecore.github.io/charts
 helm repo add brigade https://brigadecore.github.io/charts
-helm install -n brigade brigade/brigade \
-  --set rbac.enabled=true \
-	--set api.service.type=LoadBalancer
+
+sudo yum install -y git
+
+cd /root
+git clone https://github.com/uswitch/brigade-old.git
+
+helm install --name brigade ./brigade-old/charts/brigade/ --set rbac.enabled=true
+
+kubectl apply -f $MANIFESTS_DIR/brigade-role-github-gw.yaml
 
 pwd >> /tmp/bootstraped
 exit 0
 
+helm install -n brigade brigade/brigade \
+  --set rbac.enabled=true \
+	--set api.service.type=LoadBalancer
 helm install -n brigade brigade/brigade-project \
 	-f $MANIFESTS_DIR/brigade-project-values.yaml
 
@@ -282,7 +293,6 @@ helm install -n brigade brigade/brigade \
 	-f $MANIFESTS_DIR/brigade-project-values.yaml
 kubectl patch svc brigade-brigade-github-app -p '{"spec": {"type": "LoadBalancer", "externalIPs":["10.152.0.63"]}}'
 #helm install -n brigade brigade/brigade --namespace brigade --set rbac.enabled=true
-
 
 kubectl create secret docker-registry regcred \
   --docker-server=https://index.docker.io/v1/ \

@@ -105,10 +105,9 @@ do
     ${SSH_USER}@${_ip}:/tmp/kubeconfig ./kubeconfig
 
 	if [ ! -e "kubeconfig" ]; then
-    echo current num of running :
+    echo waiting for k3s ...
     sleep 10
   else
-    echo current num of running :
     break
   fi
 done
