@@ -1,6 +1,6 @@
 # SELinux
 
-ocho "#################################################################################"
+echo "#################################################################################"
 echo "# Environment Values "
 echo "#################################################################################"
 if [ -e "/vagrant" ]; then
@@ -21,12 +21,35 @@ do
   fi
 done
 
-sudo yum install -y wget 
+YUM_CMD=$(which yum)
+APT_CMD=$(which apt-get)
+
+PACKAGE_NAME=wget
+PACKAGE_CMD=$(which wget)
+if [[ ! -z $WGET_CMD ]]; then
+  if [[ ! -z $YUM_CMD ]]; then
+    sudo yum install -y $PACKAGE_NAME
+  elif [[ ! -z $APT_GET_CMD ]]; then
+    sudo apt-get -y $PACKAGE_NAME
+  fi
+fi
+
+PACKAGE_NAME=git
+PACKAGE_CMD=$(which git)
+if [[ ! -z $GIT_CMD ]]; then
+  if [[ ! -z $YUM_CMD ]]; then
+    sudo yum install -y $PACKAGE_NAME
+  elif [[ ! -z $APT_GET_CMD ]]; then
+    sudo apt-get -y $PACKAGE_NAME
+  fi
+fi
 
 echo "#################################################################################"
 echo "# k3s"
 echo "#################################################################################"
-sudo yum -d 1 -y install policycoreutils-python
+if [[ ! -z $YUM_CMD ]]; then
+  sudo yum -d 1 -y install policycoreutils-python
+fi
 
 #curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --bind-address 0.0.0.0
 
@@ -266,10 +289,13 @@ pwd
 echo helm repo add brigade https://brigadecore.github.io/charts
 helm repo add brigade https://brigadecore.github.io/charts
 
-sudo yum install -y git
 
 cd /root
 git clone https://github.com/uswitch/brigade-old.git
+
+sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/api-deployment.yaml
+sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/controller-deployment.yaml
+sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/gateway-github-deployment.yaml
 
 helm install --name brigade ./brigade-old/charts/brigade/ --set rbac.enabled=true
 

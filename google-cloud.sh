@@ -10,7 +10,7 @@ do
   case $OPT in
     "u" ) FLG_U="true" ; VALUE_U="$OPTARG" ;;
     "p" ) FLG_UPDATE="true" ;;
-      * ) echo "Usage: $CMDNAME [-u USER] [--update]" 1>&2
+     *  ) echo "Usage: $CMDNAME [-u USER] [-p]" 1>&2
           exit 1 ;;
   esac
 done
@@ -79,8 +79,11 @@ gcloud compute instances create istio-demo \
   --scopes compute-rw,storage-ro,service-management,service-control,logging-write,monitoring \
   --tags kubernetes-the-hard-way,controller \
   --zone=australia-southeast1-a \
+  --metadata-from-file startup-script=./bootstrap.sh \
   --preemptible
-#  --metadata-from-file startup-script=./bootstrap.sh
+
+#  --image-family ubuntu-1804-lts \
+#  --image-project ubuntu-os-cloud \
 
 #  --image-family centos-7 \
 #  --image-project centos-cloud \
@@ -89,10 +92,11 @@ gcloud compute instances add-metadata istio-demo \
   --zone australia-southeast1-a \
   --metadata block-project-ssh-keys=FALSE
 
-sleep 10
+sleep 30
 
 _ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
 
+echo "scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r ./manifests ${SSH_USER}@${_ip}:/tmp/"
 scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r \
   ./manifests ${SSH_USER}@${_ip}:/tmp/
 
