@@ -94,14 +94,20 @@ kubectl patch deploy \
 	--namespace kube-system tiller-deploy \
 	-p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
+
 helm repo add brigade https://brigadecore.github.io/charts
+
+kubectl create namespace microsmack
+kubectl create -f kube-con-2017/web.yaml -n microsmack
+kubectl create -f kube-con-2017/api-svc.yaml -n microsmack
+
+exit 0
 
 helm install -n brigade brigade/brigade \
 	-f brigade-values.yaml \
 	--set brigade-github-app.enabled=ture \
 	--t brigade-github-app.service.type=LoadBalancer
 
-exit 0
 sleep 30
 
 _ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`

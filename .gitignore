@@ -2,3 +2,4 @@
 kubeconfig
 manifests/values.yaml
 *.pem
+*.swp
