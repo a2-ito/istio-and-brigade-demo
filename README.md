@@ -40,3 +40,16 @@ while true; do curl -s -H 'x-user: hoge' -HHost:sticky-svc.istio.k3s.local http:
 ```
 kubectl apply -f /vagrant/manifests/sticky-svc-destinationrule.yaml
 ```
+
+```
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"
+}}}}'
+
+helm init --service-account=tiller --upgrade
+
+helm repo add brigade https://brigadecore.github.io/charts
+
+helm install -n brigade brigade/brigade -f brigade-values.yaml --set brigade-github-app.service.type=LoadBalancer
+```

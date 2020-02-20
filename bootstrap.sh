@@ -246,7 +246,6 @@ kubectl create serviceaccount --namespace kube-system tiller
 kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
 kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
-
 #sleep 30
 #export HELM_HOME=/home/vagrant
 #cd $HELM_HOME
@@ -289,17 +288,17 @@ pwd
 echo helm repo add brigade https://brigadecore.github.io/charts
 helm repo add brigade https://brigadecore.github.io/charts
 
+#cd /root
+#git clone https://github.com/uswitch/brigade-old.git
 
-cd /root
-git clone https://github.com/uswitch/brigade-old.git
+#sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/api-deployment.yaml
+#sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/controller-deployment.yaml
+#sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/gateway-github-deployment.yaml
 
-sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/api-deployment.yaml
-sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/controller-deployment.yaml
-sed -i -e 's/extensions\/v1beta1/apps\/v1/' ./brigade-old/charts/brigade/templates/gateway-github-deployment.yaml
+#helm install --name brigade ./brigade-old/charts/brigade/ --set rbac.enabled=true
+#kubectl apply -f $MANIFESTS_DIR/brigade-role-github-gw.yaml
 
-helm install --name brigade ./brigade-old/charts/brigade/ --set rbac.enabled=true
-
-kubectl apply -f $MANIFESTS_DIR/brigade-role-github-gw.yaml
+#helm install --name brigade ./brigade-old/charts/brigade/ --set rbac.enabled=true
 
 pwd >> /tmp/bootstraped
 exit 0
@@ -317,7 +316,7 @@ helm install -n brigade brigade/brigade \
 	--set brigade-github-app.service.type=LoadBalancer \
 	-f $MANIFESTS_DIR/brigade-github-app-values.yaml
 	-f $MANIFESTS_DIR/brigade-project-values.yaml
-kubectl patch svc brigade-brigade-github-app -p '{"spec": {"type": "LoadBalancer", "externalIPs":["10.152.0.63"]}}'
+kubectl patch svc brigade-brigade-github-app -p '{"spec": {"type": "LoadBalancer", "externalIPs":["10.152.0.4"]}}'
 #helm install -n brigade brigade/brigade --namespace brigade --set rbac.enabled=true
 
 kubectl create secret docker-registry regcred \
