@@ -7,17 +7,13 @@ spec:
   containers:
     - image: gcr.io/kaniko-project/executor:latest
       args:
-      - --dockerfile=/mnt/Dockerfile.smackapi
-      - --context=/mnt
-      - --destination=a2ito/smackapi
-      - --cache=true
-      - --cache-dir=/cache
+      - --dockerfile=/mnt/Dockerfile
+      - --context= /mnt
+      - --destination=a2ito/ubuntu-ssh1
       name: kaniko
       volumeMounts:
         - name: mount-volume
           mountPath: /mnt
-        - name: cache-volume
-          mountPath: /root/.cache
         - name: kaniko-secret
           mountPath: /root
   restartPolicy: Never
@@ -25,10 +21,6 @@ spec:
     - name: mount-volume
       hostPath:
         path: /root/kaniko
-      volumes:
-    - name: cache-volume
-      hostPath:
-        path: /root/cache
       volumes:
     - name: kaniko-secret
       secret:

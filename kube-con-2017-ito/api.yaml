@@ -12,8 +12,8 @@ spec:
     spec:
       containers:
       - name: smackapi
-        #image: a2ito/smackweb
-        image: chzbrgr71/smackapi:latest
+        image: a2ito/smackapi:latest
+        #image: chzbrgr71/smackapi:latest
         env:
         - name: KUBE_NODE_NAME
           valueFrom:
