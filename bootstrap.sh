@@ -126,11 +126,11 @@ sudo chmod 766 /tmp/kubeconfig
 sudo chown vagrant:vagrant ~/.kube/config
 
 export KUBECONFIG=~/.kube/config
-echo "export KUBECONFIG=~/.kube/onfig" >> /home/vagrant/.bashrc
+echo "export KUBECONFIG=~/.kube/config" >> /home/vagrant/.bashrc
 
 kubectl get pod 
 kubectl get node
-
+exit 0
 while true
 do
   _status=`kubectl get pod -n kube-system | grep "coredns" | tail -n1 | awk '{print $3}'`
@@ -303,6 +303,11 @@ helm repo add brigade https://brigadecore.github.io/charts
 pwd >> /tmp/bootstraped
 exit 0
 
+# First install the web front-end deployment/service
+kubectl create -f kube-con-2017/web.yaml -n microsmack
+# Then the headless service for our api
+kubectl create -f kube-con-2017/api-svc.yaml -n microsmack
+
 helm install -n brigade brigade/brigade \
   --set rbac.enabled=true \
 	--set api.service.type=LoadBalancer
@@ -329,9 +334,5 @@ kubectl create -f $MANIFESTS/kaniko.yaml
 kubectl create namespace microsmack
 kubectl label namespace microsmack istio-injection=enabled
 
-# First install the web front-end deployment/service
-kubectl create -f kube-con-2017/web.yaml -n microsmack
-# Then the headless service for our api
-kubectl create -f kube-con-2017/api-svc.yaml -n microsmack
 
 helm install --name kube-con-2017 brigade/brigade-project -f $MANIFESTS_DIR/brig-project.yaml

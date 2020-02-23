@@ -55,7 +55,7 @@ Vagrant.configure("2") do |config|
   config.vm.define hostname do |node|
     node.vm.hostname = hostname
     node.vm.network "private_network", ip: ip
-    #node.vm.network "forwarded_port", guest: 6443, host: 6443, host_ip: "0.0.0.0"
+    node.vm.network "forwarded_port", guest: 6443, host: 6443, host_ip: "0.0.0.0"
 
     offset = (ip).split(".")[-1].to_i
     http_port = 8000 + offset
@@ -72,10 +72,10 @@ Vagrant.configure("2") do |config|
 
     node.vm.provision :shell, privileged: false, path: "bootstrap.sh"
 
-    node.vm.provider "virtualbox" do |vb|
-      vb.memory = 4096
-      vb.cpus = 2
-    end
+#    node.vm.provider "virtualbox" do |vb|
+#      vb.memory = 4096
+#      vb.cpus = 2
+#    end
   end
 
   # Create a public network, which generally matched to bridged network.

@@ -1,0 +1,7 @@
+name: kaniko
+home: https://github.com/chzbrgr71/kube-con-2017
+version: 1.0
+description: kaniko kaniko
+maintainers: 
+  - name: a2-ito
+    email: hi.mound@gmail.com

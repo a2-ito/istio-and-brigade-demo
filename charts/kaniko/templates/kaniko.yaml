@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+    - image: gcr.io/kaniko-project/executor:latest
+      args:
+      - --dockerfile=/mnt/Dockerfile.smackapi
+      - --context=/mnt
+      - --destination=a2ito/smackapi
+      - --cache=true
+      - --cache-dir=/cache
+      name: kaniko
+      volumeMounts:
+        - name: mount-volume
+          mountPath: /mnt
+        - name: cache-volume
+          mountPath: /root/.cache
+        - name: kaniko-secret
+          mountPath: /root
+  restartPolicy: Never
+  volumes:
+    - name: mount-volume
+      hostPath:
+        path: /root/kaniko
+      volumes:
+    - name: cache-volume
+      hostPath:
+        path: /root/cache
+      volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: regcred
+        items:
+          - key: .dockerconfigjson
+            path: .docker/config.json

@@ -100,6 +100,18 @@ echo "scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r ./manifests ${S
 scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r \
   ./manifests ${SSH_USER}@${_ip}:/tmp/
 
+kubectl config set-cluster k3s-on-gce \
+	--server=https://${_ip}:6443 \
+	--insecure-skip-tls-verify=true
+_password=`ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' a2-ito@${_ip} "cat /tmp/kubeconfig | grep password" | awk '{print $2}'`
+kubectl config set-credentials k3s-on-gce \
+	--username=admin \
+	--password=${_password}
+kubectl config set-context k3s-on-gce \
+	--cluster=k3s-on-gce \
+	--user=k3s-on-gce
+kubectl config use-context k3s-on-gce
+
 echo "ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' ${SSH_USER}@${_ip}"
 exit 0 
 
