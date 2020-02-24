@@ -10,8 +10,7 @@ spec:
       - --dockerfile=kube-con-2017-ito/smackapi/Dockerfile
       - --context=git://github.com/a2-ito/istio-on-k3s.git
       - --destination={{.Values.api.image}}:{{.Values.api.imageTag}}
-      - --cache=true
-      - --cache-dir=/cache
+      - --cache=false
       name: kaniko
       volumeMounts:
         - name: cache-volume
@@ -20,10 +19,6 @@ spec:
           mountPath: /root
   restartPolicy: Never
   volumes:
-    - name: cache-volume
-      hostPath:
-        path: /root/cache
-      volumes:
     - name: kaniko-secret
       secret:
         secretName: regcred
