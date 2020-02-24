@@ -89,6 +89,11 @@ kubectl create clusterrolebinding \
 
 helm init --service-account=tiller --upgrade
 
+kubectl create clusterrolebinding \
+	brigade-worker-cluster-rule \
+	--clusterrole=cluster-admin \
+	--serviceaccount=default:brigade-worker
+
 sleep 20
 
 kubectl patch deploy \
