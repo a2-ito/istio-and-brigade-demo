@@ -3,10 +3,9 @@ const { events, Job, Group } = require("brigadier");
 events.on("push", (brigadeEvent, project) => {
 
   console.log("Hello push event!!!")
-  var payload = JSON.parse(brigadeEvent.payload)
-  console.log(payload)
+  //var payload = JSON.parse(brigadeEvent.payload)
+  //console.log(payload)
 
-  var gitPayload = JSON.parse(brigadeEvent.payload)
   var brigConfig = new Map()
 
 	brigConfig.set("apiImage", "a2ito/smackapi")
@@ -19,6 +18,7 @@ events.on("push", (brigadeEvent, project) => {
 
   var docker = new Job("job-runner-docker")
   //docker.serviceAccount = "tiller"
+  console.log("imageTag: ", `${brigConfig.get("imageTag")}`)
 	dockerJobRunner(brigConfig, docker, "test")
 
   var pipeline = new Group()
