@@ -11,7 +11,8 @@ spec:
       - --context=git://github.com/a2-ito/istio-on-k3s.git
       - --destination={{.Values.api.image}}:{{.Values.api.imageTag}}
       - --cache=false
-      name: kaniko
+      volumeMounts:
+        name: kaniko
         - name: kaniko-secret
           mountPath: /root
   restartPolicy: Never
