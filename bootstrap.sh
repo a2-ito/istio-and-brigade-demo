@@ -309,6 +309,8 @@ kubectl create -f kube-con-2017-ito/web.yaml -n microsmack
 kubectl create -f kube-con-2017-ito/api-svc.yaml -n microsmack
 kubectl create -f kube-con-2017-ito/api.yaml -n microsmack
 
+kubectl create clusterrolebinding crb-brigade-worker --clusterrole=cluster-admin --serviceaccount=default:brigade-worker
+
 helm install -n brigade brigade/brigade \
   --set rbac.enabled=true \
 	--set api.service.type=LoadBalancer
