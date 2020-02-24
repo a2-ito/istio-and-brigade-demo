@@ -14,18 +14,12 @@ spec:
       - --cache-dir=/cache
       name: kaniko
       volumeMounts:
-        - name: mount-volume
-          mountPath: /mnt
         - name: cache-volume
           mountPath: /root/.cache
         - name: kaniko-secret
           mountPath: /root
   restartPolicy: Never
   volumes:
-    - name: mount-volume
-      hostPath:
-        path: /root/kaniko
-      volumes:
     - name: cache-volume
       hostPath:
         path: /root/cache
