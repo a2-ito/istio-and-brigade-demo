@@ -1,6 +1,6 @@
 # istio
 
-test test
+test
 
 ## Environment
 
