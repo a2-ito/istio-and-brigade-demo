@@ -17,7 +17,7 @@ spec:
           mountPath: /secret
       env:
         - name: DOCKER_CONFIG
-          value: /secret
+          value: /secret/.docker
   restartPolicy: Never
   volumes:
     - name: kaniko-secret
