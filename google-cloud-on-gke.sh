@@ -74,7 +74,8 @@ gcloud container clusters create istio-demo-cluster \
   --disk-size 100GB \
   --machine-type n1-standard-2 \
   --num-nodes=2 \
-	--preemptible
+	--preemptible \
+	--addons=Istio
 
 gcloud container clusters get-credentials istio-demo-cluster \
 	--zone australia-southeast1-a \
@@ -94,19 +95,26 @@ kubectl patch deploy \
 	--namespace kube-system tiller-deploy \
 	-p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
-
 helm repo add brigade https://brigadecore.github.io/charts
 
+# Install Istio
+
 kubectl create namespace microsmack
-kubectl create -f kube-con-2017/web.yaml -n microsmack
-kubectl create -f kube-con-2017/api-svc.yaml -n microsmack
+kubectl label namespace microsmack istio-injection=enabled
 
 exit 0
+kubectl create -f kube-con-2017-ito/web.yaml -n microsmack
+kubectl create -f kube-con-2017-ito/api-svc.yaml -n microsmack
+kubectl create -f kube-con-2017-ito/api.yaml -n microsmack
 
 helm install -n brigade brigade/brigade \
-	-f brigade-values.yaml \
+	--set brigade.rbac.enabled=ture \
 	--set brigade-github-app.enabled=ture \
-	--t brigade-github-app.service.type=LoadBalancer
+	--set brigade-github-app.service.type=LoadBalancer \
+	-f brigade-values.yaml
+
+helm install -n brigade-project brigade/brigade-project \
+	-f manifests/brigade-project-values.yaml
 
 sleep 30
 
