@@ -72,7 +72,7 @@ fi
 gcloud container clusters create istio-demo-cluster \
   --zone australia-southeast1-a \
   --disk-size 100GB \
-  --machine-type n1-standard-1 \
+  --machine-type n1-standard-2 \
   --num-nodes=2 \
 	--preemptible
 
