@@ -11,6 +11,7 @@ spec:
       - --context=git://github.com/a2-ito/istio-on-k3s.git
       - --destination={{.Values.api.image}}:{{.Values.api.imageTag}}
       - --cache=false
+      - --build-arg=IMAGE_TAG_REF={{.Values.api.imageTag}}
       name: kaniko
       volumeMounts:
         - name: kaniko-secret
