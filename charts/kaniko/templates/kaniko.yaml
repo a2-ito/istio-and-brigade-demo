@@ -15,6 +15,9 @@ spec:
       volumeMounts:
         - name: kaniko-secret
           mountPath: /secret
+      env:
+        - name: DOCKER_CONFIG
+          value: /secret
   restartPolicy: Never
   volumes:
     - name: kaniko-secret
