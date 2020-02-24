@@ -12,9 +12,6 @@ spec:
       - --destination={{.Values.api.image}}:{{.Values.api.imageTag}}
       - --cache=false
       name: kaniko
-      volumeMounts:
-        - name: cache-volume
-          mountPath: /root/.cache
         - name: kaniko-secret
           mountPath: /root
   restartPolicy: Never
