@@ -44,7 +44,7 @@ events.on("pull_request", (brigadeEvent, project) => {
 	brigConfig.set("eventType", brigadeEvent.type)
   console.log(JSON.parse(brigadeEvent.payload).pull_request.head.ref)
   console.log(brigadeEvent.revision.ref)
-  brigConfig.set("branch", brigadeEvent.revision.ref.split('/').pop())
+  brigConfig.set("branch", JSON.parse(brigadeEvent.payload).pull_request.head.ref)
 	brigConfig.set("imageTag", `${brigConfig.get("branch")}-${brigConfig.get("gitSHA")}`)
   brigConfig.set("apiDHBImage", `${brigConfig.get("apiImage")}`)
 
