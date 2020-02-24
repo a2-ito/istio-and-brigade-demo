@@ -93,7 +93,7 @@ function helmJobRunner (config, h, prodWeight, canaryWeight, deployType) {
     h.image = "lachlanevenson/k8s-helm:2.7.0"
     h.tasks = [
         "cd /src/",
-        `helm upgrade --install smackapi-${deployType} ./kube-con-2017-ito/charts/smackapi --namespace microsmack --set api.image=${config.get("apiDHBImage")} --set api.imageTag=${config.get("imageTag")} --set api.deployment=smackapi-${deployType} --set api.versionLabel=${deployType}`
+        `helm upgrade --install smackapi-${deployType} --force ./kube-con-2017-ito/charts/smackapi --namespace microsmack --set api.image=${config.get("apiDHBImage")} --set api.imageTag=${config.get("imageTag")} --set api.deployment=smackapi-${deployType} --set api.versionLabel=${deployType}`
     ]
 }
 
