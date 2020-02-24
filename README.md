@@ -1,7 +1,5 @@
 # istio
 
-test
-
 ## Environment
 
 
