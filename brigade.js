@@ -10,7 +10,7 @@ events.on("push", (brigadeEvent, project) => {
   var brigConfig = new Map()
 
 	brigConfig.set("apiImage", "a2ito/smackapi")
-	brigConfig.set("gitSHA", brigadeEvent.after.substr(0,7))
+	brigConfig.set("gitSHA", brigadeEvent.revision.commit.substr(0,7))
 	brigConfig.set("eventType", brigadeEvent.type)
   brigConfig.set("branch", getBranch(gitPayload))
   brigConfig.set("branch", "master")
