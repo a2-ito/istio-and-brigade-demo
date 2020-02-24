@@ -14,7 +14,7 @@ spec:
       name: kaniko
       volumeMounts:
         - name: kaniko-secret
-          mountPath: /root
+          mountPath: /secret
   restartPolicy: Never
   volumes:
     - name: kaniko-secret
