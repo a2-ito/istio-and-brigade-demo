@@ -11,7 +11,7 @@ events.on("push", (brigadeEvent, project) => {
 	brigConfig.set("apiImage", "a2ito/smackapi")
 	brigConfig.set("gitSHA", brigadeEvent.revision.commit.substr(0,7))
 	brigConfig.set("eventType", brigadeEvent.type)
-  brigConfig.set("branch", brigadeEvent.revision.ref)
+  brigConfig.set("branch", brigadeEvent.revision.ref.split('/').pop())
 	brigConfig.set("imageTag", `${brigConfig.get("branch")}-${brigConfig.get("gitSHA")}`)
   brigConfig.set("apiDHBImage", `${brigConfig.get("apiImage")}`)
   //brigConfig.set("apiDHBImage", `${brigConfig.get("dhubServer")}/${brigConfig.get("apiImage")}`)
