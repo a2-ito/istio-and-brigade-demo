@@ -7,9 +7,9 @@ spec:
   containers:
     - image: gcr.io/kaniko-project/executor:latest
       args:
-      - --dockerfile=/mnt/Dockerfile.smackapi
-      - --context=/mnt
-      - --destination=a2ito/smackapi
+      - --dockerfile=kube-con-2017-ito/smackapi/Dockerfile
+      - --context=git://github.com/a2-ito/istio-on-k3s.git
+      - --destination={{.Values.api.image}}:{{.Values.api.imageTag}}
       - --cache=true
       - --cache-dir=/cache
       name: kaniko

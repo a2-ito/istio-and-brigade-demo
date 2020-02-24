@@ -130,7 +130,7 @@ echo "export KUBECONFIG=~/.kube/config" >> /home/vagrant/.bashrc
 
 kubectl get pod 
 kubectl get node
-exit 0
+
 while true
 do
   _status=`kubectl get pod -n kube-system | grep "coredns" | tail -n1 | awk '{print $3}'`
@@ -304,9 +304,10 @@ pwd >> /tmp/bootstraped
 exit 0
 
 # First install the web front-end deployment/service
-kubectl create -f kube-con-2017/web.yaml -n microsmack
+kubectl create -f kube-con-2017-ito/web.yaml -n microsmack
 # Then the headless service for our api
-kubectl create -f kube-con-2017/api-svc.yaml -n microsmack
+kubectl create -f kube-con-2017-ito/api-svc.yaml -n microsmack
+kubectl create -f kube-con-2017-ito/api.yaml -n microsmack
 
 helm install -n brigade brigade/brigade \
   --set rbac.enabled=true \

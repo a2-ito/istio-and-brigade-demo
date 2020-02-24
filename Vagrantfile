@@ -62,6 +62,7 @@ Vagrant.configure("2") do |config|
     ssh_port = 2200 + offset
     #node.vm.network "forwarded_port", id: "http", guest: 80, host: http_port
     node.vm.network "forwarded_port", id: "http", guest: http_port, host: http_port
+    node.vm.network "forwarded_port", id: "http-8080", guest: 8080, host: 8080
     node.vm.network "forwarded_port", id: "http-15030", guest: 15030, host: 15030
     node.vm.network "forwarded_port", id: "ssh", guest: 22, host: ssh_port
 
