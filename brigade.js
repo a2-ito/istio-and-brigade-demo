@@ -64,7 +64,7 @@ events.on("exec", () => {
 	//brigConfig.set("eventType", brigadeEvent.type)
   //brigConfig.set("branch", brigadeEvent.revision.ref.split('/').pop())
 	//brigConfig.set("imageTag", `${brigConfig.get("branch")}-${brigConfig.get("gitSHA")}`)
-	brigConfig.set("imageTag", "hoge-hoge")
+	brigConfig.set("imageTag", "hoge-hoge-3")
   brigConfig.set("apiDHBImage", `${brigConfig.get("apiImage")}`)
 
   var docker = new Job("job-runner-docker")
