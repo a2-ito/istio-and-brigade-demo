@@ -86,6 +86,29 @@ kubectl logs -f -n istio-system istio-ingressgateway-xxxxx | grep sticky
 kubectl delete destinationrule sticky-svc
 ```
 
+
+helm install -n smackapi-prod ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
+  --set api.image=a2ito/smackapi --set api.imageTag=latest \
+  --set api.deployment=smackapi-prod --set api.versionLabel=prod
+
+helm upgrade --install smackapi-prod ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
+  --set api.image=a2ito/smackapi --set api.imageTag=latest \
+  --set api.deployment=smackapi-prod --set api.versionLabel=prod
+
+helm upgrade --install smackapi-test ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
+  --set api.image=a2ito/smackapi --set api.imageTag=test2-1202c36 \
+  --set api.deployment=smackapi-test --set api.versionLabel=new
+
+helm install -n microsmack-routes ./kube-con-2017-ito/charts/routes --namespace microsmack \
+  --set prodLabel=prod --set prodWeight=90 --set canaryLabel=new --set canaryWeight=10
+
+helm upgrade --install microsmack-routes ./kube-con-2017-ito/charts/routes --namespace microsmack \
+  --set prodLabel=prod --set prodWeight=90 --set canaryLabel=new --set canaryWeight=10
+
+helm upgrade --install microsmack-routes ./kube-con-2017-ito/charts/routes --namespace microsmack \
+  --set prodLabel=prod --set prodWeight=50 --set canaryLabel=new --set canaryWeight=50
+
+
 ```
 kubectl create serviceaccount --namespace kube-system tiller
 kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller

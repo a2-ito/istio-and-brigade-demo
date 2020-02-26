@@ -1,14 +1,31 @@
-apiVersion: config.istio.io/v1alpha2
-kind: RouteRule
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
 metadata:
   name: smackapi
 spec:
-  destination:
-    name: smackapi
-  route:
-  - labels:
-      version: "{{.Values.prodLabel}}"
-    weight: {{.Values.prodWeight}}
-  - labels:
-      version: "{{.Values.canaryLabel}}"
-    weight: {{.Values.canaryWeight}}
+  hosts:
+    - smackapi
+  http:
+  - route:
+    - destination:
+        host: smackapi
+        subset: "{{.Values.prodLabel}}"
+      weight: {{.Values.prodWeight}}
+    - destination:
+        host: smackapi
+        subset: "{{.Values.canaryLabel}}"
+      weight: {{.Values.canaryWeight}}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: smackapi
+spec:
+  host: smackapi
+  subsets:
+  - name: prod
+    labels:
+      version: prod
+  - name: new
+    labels:
+      version: new

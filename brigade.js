@@ -98,6 +98,7 @@ function helmJobRunner (config, h, prodWeight, canaryWeight, deployType) {
     h.tasks = [
         "cd /src/",
         `helm upgrade --install smackapi-${deployType} --force ./kube-con-2017-ito/charts/smackapi --namespace microsmack --set api.image=${config.get("apiDHBImage")} --set api.imageTag=${config.get("imageTag")} --set api.deployment=smackapi-${deployType} --set api.versionLabel=${deployType}`
+        `helm upgrade --install microsmack-routes --force ./kube-conf-2017-ito/charts/routes --namespace microsmack --set prodLabel=prod --set prodWeight=${prodWeight} --set canaryLabel=new --set canaryWeight=${canaryWeight}`
     ]
 }
 
