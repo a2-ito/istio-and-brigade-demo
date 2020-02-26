@@ -8,4 +8,5 @@ spec:
   trafficPolicy:
     loadBalancer:
       consistentHash:
-        httpHeaderName: x-user
+        useSourceIp: true
+        #httpHeaderName: x-user
