@@ -20,7 +20,7 @@ events.on("push", (brigadeEvent, project) => {
 
   var docker = new Job("job-runner-docker")
   var helm = new Job("job-runner-helm")
-  var helmnew = new Job("job-runner-helm")
+  //var helmnew = new Job("job-runner-helm")
   //docker.serviceAccount = "tiller"
   console.log("imageTag: ", `${brigConfig.get("imageTag")}`)
 	dockerJobRunner(brigConfig, docker)
@@ -30,7 +30,7 @@ events.on("push", (brigadeEvent, project) => {
   var pipeline = new Group()
   pipeline.add(docker)
   pipeline.add(helm)
-  pipeline.add(helmnew)
+  //pipeline.add(helmnew)
   if (brigConfig.get("branch") == "master") {
     pipeline.runEach()
   } else {
