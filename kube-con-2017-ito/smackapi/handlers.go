@@ -32,7 +32,8 @@ func returnConfig(w http.ResponseWriter, r *http.Request) {
 
 	var appVersion = os.Getenv("IMAGE_TAG")
 	//var backColor = "SteelBlue"
-	var backColor = "red"
+	var backColor = "Crimson"
+	//var backColor = "red"
 	var imageBuildDate = os.Getenv("IMAGE_BUILD_DATE")
 	var kubeNodeName = os.Getenv("KUBE_NODE_NAME")
 	var kubePodName = os.Getenv("KUBE_POD_NAME")
