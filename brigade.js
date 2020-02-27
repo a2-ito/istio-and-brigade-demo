@@ -37,7 +37,8 @@ events.on("push", (brigadeEvent, project) => {
     console.log(`==> no jobs to run when not master`)
   }  
 
-  helmJobRunner(brigConfig, helm, 100, 0, "new")
+  var helmnew = new Job("job-runner-helmnew")
+  helmJobRunner(brigConfig, helmnew, 100, 0, "new")
   helm.run() 
 
 })
