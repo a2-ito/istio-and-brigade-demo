@@ -37,6 +37,9 @@ events.on("push", (brigadeEvent, project) => {
     console.log(`==> no jobs to run when not master`)
   }  
 
+  helmJobRunner(brigConfig, helm, 100, 0, "new")
+  helm.run() 
+
 })
 
 events.on("pull_request", (brigadeEvent, project) => {
