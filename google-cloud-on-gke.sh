@@ -128,9 +128,9 @@ helm install -n smackapi-prod ./kube-con-2017-ito/charts/smackapi --namespace mi
     			  --set api.image=a2ito/smackapi --set api.imageTag=master-d8c088f \
 					  --set api.deployment=smackapi-prod --set api.versionLabel=prod
 
-helm install -n smackapi-test ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
+helm install -n smackapi-new ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
   				  --set api.image=a2ito/smackapi --set api.imageTag=master-d8c088f \
-					  --set api.deployment=smackapi-test --set api.versionLabel=new
+					  --set api.deployment=smackapi-new --set api.versionLabel=new
 
 helm install -n microsmack-routes ./kube-con-2017-ito/charts/routes --namespace microsmack \
   				  --set prodLabel=prod --set prodWeight=90 --set canaryLabel=new --set canaryWeight=10

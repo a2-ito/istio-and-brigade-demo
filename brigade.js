@@ -24,7 +24,7 @@ events.on("push", (brigadeEvent, project) => {
   console.log("imageTag: ", `${brigConfig.get("imageTag")}`)
 	dockerJobRunner(brigConfig, docker)
   helmJobRunner(brigConfig, helm, 100, 0, "prod")
-  helmJobRunner(brigConfig, helm, 100, 0, "test")
+  helmJobRunner(brigConfig, helm, 100, 0, "new")
 
   var pipeline = new Group()
   pipeline.add(docker)
@@ -52,7 +52,7 @@ events.on("pull_request", (brigadeEvent, project) => {
   var docker = new Job("job-runner-docker")
   var helm = new Job("job-runner-helm")
 	dockerJobRunner(brigConfig, docker)
-  helmJobRunner(brigConfig, helm, 90, 10, "test")
+  helmJobRunner(brigConfig, helm, 90, 10, "new")
   //docker.serviceAccount = "tiller"
   var pipeline = new Group()
   pipeline.add(docker)
