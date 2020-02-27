@@ -25,7 +25,7 @@ events.on("push", (brigadeEvent, project) => {
   console.log("imageTag: ", `${brigConfig.get("imageTag")}`)
 	dockerJobRunner(brigConfig, docker)
   helmJobRunner(brigConfig, helm, 100, 0, "prod")
-  helmJobRunner(brigConfig, helmnew, 100, 0, "new")
+  //helmJobRunner(brigConfig, helmnew, 100, 0, "new")
 
   var pipeline = new Group()
   pipeline.add(docker)
