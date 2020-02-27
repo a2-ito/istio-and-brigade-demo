@@ -51,7 +51,7 @@ events.on("pull_request", (brigadeEvent, project) => {
   var docker = new Job("job-runner-docker")
   var helm = new Job("job-runner-helm")
 	dockerJobRunner(brigConfig, docker)
-  helmJobRunner(brigConfig, helm, 10, 90, "prod")
+  helmJobRunner(brigConfig, helm, 90, 10, "prod")
   //docker.serviceAccount = "tiller"
   var pipeline = new Group()
   pipeline.add(docker)
