@@ -28,7 +28,7 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func returnConfig(w http.ResponseWriter, r *http.Request) {
 
-        fmt.Println("my msg here")
+  fmt.Println("my msg here")
 
 	var appVersion = os.Getenv("IMAGE_TAG")
 	var backColor = "SteelBlue"
