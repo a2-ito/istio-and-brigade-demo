@@ -138,8 +138,8 @@ helm install -n microsmack-routes ./kube-con-2017-ito/charts/routes --namespace 
 echo;
 echo kubectl create secret docker-registry regcred \
   --docker-server=https://index.docker.io/v1/ \
-  --docker-username=a2ito \
-  --docker-password=tepR3331 \
+  --docker-username=[username] \
+  --docker-password=[password] \
   --docker-email=hi.mound@gmail.com
 echo;
 
