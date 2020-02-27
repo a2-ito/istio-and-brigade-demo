@@ -135,5 +135,13 @@ helm install -n smackapi-test ./kube-con-2017-ito/charts/smackapi --namespace mi
 helm install -n microsmack-routes ./kube-con-2017-ito/charts/routes --namespace microsmack \
   				  --set prodLabel=prod --set prodWeight=90 --set canaryLabel=new --set canaryWeight=10
 
+echo;
+echo kubectl create secret docker-registry regcred \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username=a2ito \
+  --docker-password=tepR3331 \
+  --docker-email=hi.mound@gmail.com
+echo;
+
 kubectl get svc -n microsmack -w
 
