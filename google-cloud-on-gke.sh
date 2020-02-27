@@ -74,8 +74,7 @@ gcloud container clusters create istio-demo-cluster \
   --disk-size 100GB \
   --machine-type n1-standard-2 \
   --num-nodes=2 \
-	--preemptible \
-	--addons=Istio
+	--preemptible 
 
 gcloud container clusters get-credentials istio-demo-cluster \
 	--zone australia-southeast1-a \
@@ -100,17 +99,10 @@ kubectl patch deploy \
 	--namespace kube-system tiller-deploy \
 	-p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"}}}}'
 
+# Install Brigade
 helm repo add brigade https://brigadecore.github.io/charts
 
-# Install Istio
-
-kubectl create namespace microsmack
-kubectl label namespace microsmack istio-injection=enabled
-
-exit 0
-kubectl create -f kube-con-2017-ito/web.yaml -n microsmack
-kubectl create -f kube-con-2017-ito/api-svc.yaml -n microsmack
-kubectl create -f kube-con-2017-ito/api.yaml -n microsmack
+sleep 20
 
 helm install -n brigade brigade/brigade \
 	--set brigade.rbac.enabled=ture \
@@ -121,61 +113,27 @@ helm install -n brigade brigade/brigade \
 helm install -n brigade-project brigade/brigade-project \
 	-f manifests/brigade-project-values.yaml
 
-sleep 30
+# Install Istio
+istioctl manifest apply --set profile=demo
 
-_ip=`gcloud compute instances list --format='get(networkInterfaces[0].accessConfigs[0].natIP)'`
+# Install sample app
+kubectl create namespace microsmack
+kubectl label namespace microsmack istio-injection=enabled
 
-echo "scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r ./manifests ${SSH_USER}@${_ip}:/tmp/"
-scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' -r \
-  ./manifests ${SSH_USER}@${_ip}:/tmp/
+kubectl create -f kube-con-2017-ito/web.yaml -n microsmack
+kubectl create -f kube-con-2017-ito/api-svc.yaml -n microsmack
+#kubectl create -f kube-con-2017-ito/api.yaml -n microsmack
 
-echo "ssh -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' ${SSH_USER}@${_ip}"
-exit 0 
+helm install -n smackapi-prod ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
+    			  --set api.image=a2ito/smackapi --set api.imageTag=latest \
+					  --set api.deployment=smackapi-prod --set api.versionLabel=prod
 
-sleep 60
+helm install -n smackapi-test ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
+  				  --set api.image=a2ito/smackapi --set api.imageTag=test2-1202c36 \
+					  --set api.deployment=smackapi-test --set api.versionLabel=new
 
-rm -f ./kubeconfig
-while true
-do
-  scp -i ~/.ssh/keys/id_rsa -o 'StrictHostKeyChecking no' \
-    ${SSH_USER}@${_ip}:/tmp/kubeconfig ./kubeconfig
+helm install -n microsmack-routes ./kube-con-2017-ito/charts/routes --namespace microsmack \
+  				  --set prodLabel=prod --set prodWeight=90 --set canaryLabel=new --set canaryWeight=10
 
-	if [ ! -e "kubeconfig" ]; then
-    echo waiting for k3s ...
-    sleep 10
-  else
-    break
-  fi
-done
-
-sed -i s/0.0.0.0/${_ip}/g kubeconfig
-
-echo "## Create Workers VM"
-#for i in 1 2 3; do
-#  gcloud compute instances create worker-${i} \
-#    --async \
-#    --boot-disk-size 100GB \
-#    --can-ip-forward \
-#    --image-family ubuntu-1804-lts \
-#    --image-project ubuntu-os-cloud \
-#    --machine-type n1-standard-1 \
-#    --metadata pod-cidr=10.200.${i}.0/24 \
-#    --private-network-ip 10.240.${i}.11 \
-#    --scopes compute-rw,storage-ro,service-management,service-control,logging-write,monitoring \
-#    --subnet subnet-worker-${i} \
-#    --tags kubernetes-the-hard-way,worker \
-#    --network-interface=no-address \
-#    --no-address \
-#    --preemptible
-#done
-
-echo "## Configure SSH keys"
-for i in 1 2 3; do
-#  gcloud compute instances add-metadata worker-${i} \
-#    --zone australia-southeast1-a \
-#    --metadata block-project-ssh-keys=FALSE
-  gcloud compute instances add-metadata master-${i} \
-    --zone australia-southeast1-a \
-    --metadata block-project-ssh-keys=FALSE
-done
+kubectl get svc -n microsmack -w
 
