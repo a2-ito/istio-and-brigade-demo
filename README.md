@@ -87,7 +87,10 @@ kubectl delete destinationrule sticky-svc
 ```
 
 
+## Demo 3 - 
 
+
+```
 helm install -n smackapi-prod ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
   --set api.image=a2ito/smackapi --set api.imageTag=latest \
   --set api.deployment=smackapi-prod --set api.versionLabel=prod
@@ -108,6 +111,7 @@ helm upgrade --install microsmack-routes ./kube-con-2017-ito/charts/routes --nam
 
 helm upgrade --install microsmack-routes ./kube-con-2017-ito/charts/routes --namespace microsmack \
   --set prodLabel=prod --set prodWeight=50 --set canaryLabel=new --set canaryWeight=50
+```
 
 
 
