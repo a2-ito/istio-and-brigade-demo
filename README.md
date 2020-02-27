@@ -2,7 +2,7 @@
 
 ## Environment
 
-update master master test branch
+master master test branch
 
 ## Restrictions
 - Binding the port 80 on vagrantfor example, 
