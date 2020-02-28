@@ -89,6 +89,25 @@ kubectl delete destinationrule sticky-svc
 
 ## Demo 3 - 
 
+```
+export DOCKER_USERNAME=[username]
+export DOCKER_PASSWORD=[password]
+```
+```
+./google-cloud-on-gke.sh
+```
+
+```
+kubectl get svc
+```
+
+git status 
+git branch 
+
+git checkout -b testbranch
+git 
+
+
 
 ```
 helm install -n smackapi-prod ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
