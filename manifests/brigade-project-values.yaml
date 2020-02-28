@@ -1,12 +1,12 @@
 ## Name of the project, in the form "user/project"
-project: "a2-ito/istio-on-k3s"
+project: "a2-ito/istio-and-brigade-demo"
 
 ## Domain/Org/Project
-repository: "github.com/a2-ito/isito-on-k3s"
+repository: "github.com/a2-ito/isito-and-brigade-demo"
 
 ## The definitive clone URL. This can be any Git-supported URL format.
 ## You may set this to "" for no clone URL.
-cloneURL: "https://github.com/a2-ito/istio-on-k3s.git"
+cloneURL: "https://github.com/a2-ito/istio-and-brigade-demo.git"
 
 ## OPTIONAL: initGitSubmodules will recursively initialize all submodules in the repository. Default: false
 # initGitSubmodules: "false"

@@ -125,21 +125,29 @@ kubectl create -f kube-con-2017-ito/api-svc.yaml -n microsmack
 #kubectl create -f kube-con-2017-ito/api.yaml -n microsmack
 
 helm install -n smackapi-prod ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
-    			  --set api.image=a2ito/smackapi --set api.imageTag=latest \
+    			  --set api.image=a2ito/smackapi --set api.imageTag=master-d8c088f \
 					  --set api.deployment=smackapi-prod --set api.versionLabel=prod
 
-helm install -n smackapi-test ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
-  				  --set api.image=a2ito/smackapi --set api.imageTag=test2-1202c36 \
-					  --set api.deployment=smackapi-test --set api.versionLabel=new
+helm install -n smackapi-new ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
+  				  --set api.image=a2ito/smackapi --set api.imageTag=master-d8c088f \
+					  --set api.deployment=smackapi-new --set api.versionLabel=new
 
 helm install -n microsmack-routes ./kube-con-2017-ito/charts/routes --namespace microsmack \
   				  --set prodLabel=prod --set prodWeight=90 --set canaryLabel=new --set canaryWeight=10
 
+if [ -n "${DOCKER_USERNAME}" ] && [ -n "${DOCKER_PASSWORD}" ]; then
+  kubectl create secret docker-registry regcred \
+    --docker-server=https://index.docker.io/v1/ \
+    --docker-username=${DOCKER_USERNAME} \
+  	--docker-password=${DOCKER_PASSWORD} \
+    --docker-email=hi.mound@gmail.com
+fi
+
 echo;
 echo kubectl create secret docker-registry regcred \
   --docker-server=https://index.docker.io/v1/ \
-  --docker-username=a2ito \
-  --docker-password=tepR3331 \
+  --docker-username=[docker-username] \
+	--docker-password=[docker-password] \
   --docker-email=hi.mound@gmail.com
 echo;
 

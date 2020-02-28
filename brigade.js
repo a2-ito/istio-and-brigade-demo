@@ -20,19 +20,26 @@ events.on("push", (brigadeEvent, project) => {
 
   var docker = new Job("job-runner-docker")
   var helm = new Job("job-runner-helm")
+  //var helmnew = new Job("job-runner-helm")
   //docker.serviceAccount = "tiller"
   console.log("imageTag: ", `${brigConfig.get("imageTag")}`)
 	dockerJobRunner(brigConfig, docker)
   helmJobRunner(brigConfig, helm, 100, 0, "prod")
+  //helmJobRunner(brigConfig, helmnew, 100, 0, "new")
 
   var pipeline = new Group()
   pipeline.add(docker)
   pipeline.add(helm)
+  //pipeline.add(helmnew)
   if (brigConfig.get("branch") == "master") {
     pipeline.runEach()
   } else {
     console.log(`==> no jobs to run when not master`)
   }  
+
+  //var helmnew = new Job("job-runner-helmnew")
+  //helmJobRunner(brigConfig, helmnew, 100, 0, "new")
+  //helm.run() 
 
 })
 
@@ -51,7 +58,7 @@ events.on("pull_request", (brigadeEvent, project) => {
   var docker = new Job("job-runner-docker")
   var helm = new Job("job-runner-helm")
 	dockerJobRunner(brigConfig, docker)
-  helmJobRunner(brigConfig, helm, 90, 10, "test")
+  helmJobRunner(brigConfig, helm, 90, 10, "new")
   //docker.serviceAccount = "tiller"
   var pipeline = new Group()
   pipeline.add(docker)
