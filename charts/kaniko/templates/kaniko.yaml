@@ -8,7 +8,7 @@ spec:
     - image: gcr.io/kaniko-project/executor:latest
       args:
       - --dockerfile=kube-con-2017-ito/smackapi/Dockerfile
-      - --context=git://github.com/a2-ito/istio-and-brigade-demo.git
+      - --context=git://github.com/a2-ito/istio-and-brigade-demo.git#refs/heads/{{.Values.api.branch}}
       - --destination={{.Values.api.image}}:{{.Values.api.imageTag}}
       - --cache=false
       - --build-arg=IMAGE_TAG_REF={{.Values.api.imageTag}}

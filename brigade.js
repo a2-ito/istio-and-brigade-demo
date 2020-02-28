@@ -95,7 +95,7 @@ function dockerJobRunner(config, d) {
     d.image = "lachlanevenson/k8s-helm:2.7.0"
     d.tasks = [
 			"cd /src/",
-      `helm upgrade --install kaniko ./charts/kaniko --force --set api.image=${config.get("apiDHBImage")} --set api.imageTag=${config.get("imageTag")}`
+      `helm upgrade --install kaniko ./charts/kaniko --force --set api.image=${config.get("apiDHBImage")} --set api.imageTag=${config.get("imageTag")} --set api.branch=${config.get('branch')}`
     ]
 }
 
