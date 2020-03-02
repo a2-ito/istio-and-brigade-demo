@@ -106,14 +106,20 @@ export DOCKER_PASSWORD=[password]
 ```
 kubectl get svc
 ```
-
+```
 git status 
 git branch 
+```
 
+```
 git checkout -b testbranch
-git 
+```
+
+git add .
+git commit -m "test branch"
 
 
+## misc
 
 ```
 helm install -n smackapi-prod ./kube-con-2017-ito/charts/smackapi --namespace microsmack \
@@ -138,17 +144,3 @@ helm upgrade --install microsmack-routes ./kube-con-2017-ito/charts/routes --nam
   --set prodLabel=prod --set prodWeight=50 --set canaryLabel=new --set canaryWeight=50
 ```
 
-
-
-```
-kubectl create serviceaccount --namespace kube-system tiller
-kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
-kubectl patch deploy --namespace kube-system tiller-deploy -p '{"spec":{"template":{"spec":{"serviceAccount":"tiller"
-}}}}'
-
-helm init --service-account=tiller --upgrade
-
-helm repo add brigade https://brigadecore.github.io/charts
-
-helm install -n brigade brigade/brigade -f brigade-values.yaml --set brigade-github-app.service.type=LoadBalancer
-```
