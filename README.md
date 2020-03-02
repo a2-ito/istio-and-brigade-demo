@@ -1,18 +1,21 @@
-# istio
+# Istio and Brigade demo
 
 ## Environment
-
-update master master test branch
+- GKE
+- GCE
+- Vagrant
 
 ## Restrictions
 - Binding the port 80 on vagrantfor example, 
+- k3s doesn't work with Brigade github app. 
+- a
 
 ## Demo 1 - Bookinfo App and Canary release
 
 ### Preparation
 ```
 ```
-
+#### Enable istio-injetion on default namespace
 ```
 kubectl label namespace default istio-injection=enabled
 ```
@@ -38,6 +41,9 @@ watch -n 1 curl -o /dev/null -s -w %{http_code} -HHost:bookinfo.istio.k3s.local 
 kubectl apply -f manifests/destination-rule-all.yaml
 ```
 
+
+
+
 ```
 kubectl apply -f manifests/reviews-v1-90-v2-10.yaml
 ```
@@ -47,7 +53,7 @@ kubectl apply -f manifests/reviews-all-v2.yaml
 ```
 
 ```
-kubectl delete vertualservice reviews
+kubectl delete virtualservice reviews
 ```
 
 ## Demo 2 - sticky session
