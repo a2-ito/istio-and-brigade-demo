@@ -108,6 +108,7 @@ helm install -n brigade brigade/brigade \
 	--set brigade.rbac.enabled=ture \
 	--set brigade-github-app.enabled=ture \
 	--set brigade-github-app.service.type=LoadBalancer \
+	--set kashti.service.type=LoadBalancer \
 	-f brigade-values.yaml
 
 helm install -n brigade-project brigade/brigade-project \
