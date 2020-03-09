@@ -8,7 +8,7 @@
 ## Restrictions
 - Binding the port 80 on vagrantfor example, 
 - k3s doesn't work with Brigade github app. 
-- a
+- hoge update
 
 ## Demo 1 - Bookinfo App and Canary release
 
